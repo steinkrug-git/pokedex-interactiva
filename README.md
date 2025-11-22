@@ -7,4 +7,4 @@ PokeAPI, con capacidad de desplazamiento (scroll), búsqueda y visualización de
 - Alejandro Ezequiel Martínez Paredes (alexandre-martinoli)
 - Aldo González Colmán (steinkrug)
 - Carlos Daniel Zarate Martinez (CarlZarat)
-- Catalina Monzón Almada 
+- Catalina Monzón Almada (catalina1998)
