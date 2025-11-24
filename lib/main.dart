@@ -40,7 +40,6 @@ class _PokemonListState extends State<PokemonList> {
     super.initState();
     getPokemonList();
 
-    // Listener para detectar el fin de la lista
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
@@ -51,7 +50,6 @@ class _PokemonListState extends State<PokemonList> {
   }
 
   Future<void> getPokemonList() async {
-    // Tope de seguridad de 1500 
     if (isLoading || offset >= 1500) return;
 
     setState(() {
@@ -105,7 +103,20 @@ class _PokemonListState extends State<PokemonList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Listado de Pokémones")),
+      appBar: AppBar(
+        title: Text("Listado de Pokémones"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: PokemonSearchDelegate(),
+              );
+            },
+          )
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -124,7 +135,6 @@ class _PokemonListState extends State<PokemonList> {
 
                 final pokemon = pokemonMapList[index];
                 
-                // Diseño básico temporal (Catalina lo mejorará después)
                 return ListTile(
                   leading: Image.network(pokemon['image']),
                   title: Text(pokemon['name'].toString()),
@@ -134,6 +144,86 @@ class _PokemonListState extends State<PokemonList> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class PokemonSearchDelegate extends SearchDelegate {
+  
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = ''; 
+        },
+      )
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    if (query.trim().isEmpty) {
+      return Center(child: Text("Escribe un nombre de Pokémon"));
+    }
+
+    return FutureBuilder(
+      future: http.get(Uri.parse('https://pokeapi.co/api/v2/pokemon/${query.toLowerCase()}')),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError || snapshot.data?.statusCode != 200) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.sentiment_dissatisfied, size: 50, color: Colors.grey),
+                SizedBox(height: 10),
+                Text("No se encontraron resultados", style: TextStyle(fontSize: 18)),
+              ],
+            ),
+          );
+        }
+
+        final data = jsonDecode(snapshot.data!.body);
+        
+        return ListView(
+          padding: EdgeInsets.all(16),
+          children: [
+            ListTile(
+              leading: Image.network(
+                data['sprites']['front_default'] ?? '', 
+                errorBuilder: (_,__,___) => Icon(Icons.error),
+              ),
+              title: Text(
+                data['name'].toString().toUpperCase(),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text("#${data['id']}"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return Center(
+      child: Text("Busca por nombre (ej: pikachu)"),
     );
   }
 }
