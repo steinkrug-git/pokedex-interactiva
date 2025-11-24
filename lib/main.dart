@@ -1,7 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'pokemon_detail_screen.dart'; 
+import 'pokemon_detail_screen.dart'; // IMPORT AGREGADO
 
 const pokemonApiUrl = 'https://pokeapi.co/api/v2/pokemon'; 
 
@@ -138,7 +139,7 @@ class _PokemonListState extends State<PokemonList> {
                 return ListTile(
                   leading: Image.network(pokemon['image']),
                   title: Text(pokemon['name'].toString()),
-                
+                  // NAVEGACIÓN AGREGADA
                   onTap: () {
                     Navigator.push(
                       context,
@@ -216,7 +217,7 @@ class PokemonSearchDelegate extends SearchDelegate {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Text("#${data['id']}"),
-          
+              // NAVEGACIÓN AGREGADA
               onTap: () {
                 Navigator.push(
                   context,
