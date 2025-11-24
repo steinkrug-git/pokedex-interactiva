@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'pokemon_detail_screen.dart'; // IMPORT AGREGADO
 
 const pokemonApiUrl = 'https://pokeapi.co/api/v2/pokemon'; 
 
@@ -29,7 +31,6 @@ class PokemonList extends StatefulWidget {
 
 class _PokemonListState extends State<PokemonList> {
   List<Map<String, dynamic>> pokemonMapList = [];
-
   bool isLoading = false;
   int offset = 0;
   final int limit = 20;
@@ -138,6 +139,19 @@ class _PokemonListState extends State<PokemonList> {
                 return ListTile(
                   leading: Image.network(pokemon['image']),
                   title: Text(pokemon['name'].toString()),
+                  // NAVEGACIÓN AGREGADA
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PokemonDetailScreen(
+                          id: pokemon['id'],
+                          name: pokemon['name'],
+                          imageUrl: pokemon['image'],
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -149,7 +163,6 @@ class _PokemonListState extends State<PokemonList> {
 }
 
 class PokemonSearchDelegate extends SearchDelegate {
-  
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -186,16 +199,7 @@ class PokemonSearchDelegate extends SearchDelegate {
         }
 
         if (snapshot.hasError || snapshot.data?.statusCode != 200) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.sentiment_dissatisfied, size: 50, color: Colors.grey),
-                SizedBox(height: 10),
-                Text("No se encontraron resultados", style: TextStyle(fontSize: 18)),
-              ],
-            ),
-          );
+          return Center(child: Text("No se encontraron resultados"));
         }
 
         final data = jsonDecode(snapshot.data!.body);
@@ -213,6 +217,19 @@ class PokemonSearchDelegate extends SearchDelegate {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Text("#${data['id']}"),
+              // NAVEGACIÓN AGREGADA
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PokemonDetailScreen(
+                      id: data['id'],
+                      name: data['name'],
+                      imageUrl: data['sprites']['front_default'] ?? '',
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         );
